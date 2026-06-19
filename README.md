@@ -1,8 +1,6 @@
 # SPOT-E: Test-Time Entropy Shaping with Visual Spotlights for Frozen VLMs
 [![arXiv](https://img.shields.io/badge/arXiv-2606.20244-b31b1b.svg)](https://arxiv.org/abs/2606.20244)
 
-SPOT-E is a plug-and-play test-time visual spotlight component for frozen VLMs.
-This repo implements the method scaffold only: no VLM or CLIP model is loaded by default.
 
 <div align="center">
   <img src="assets/spot-e-overview.png" alt="SPOT-E overview" width="640">
