@@ -5,7 +5,7 @@ SPOT-E is a plug-and-play test-time visual spotlight component for frozen VLMs.
 This repo implements the method scaffold only: no VLM or CLIP model is loaded by default.
 
 <div align="center">
-  <img src="assets/spot-e-overview.png" alt="SPOT-E overview" width="800">
+  <img src="assets/spot-e-overview.png" alt="SPOT-E overview" width="640">
 </div>
 
 ## Install
