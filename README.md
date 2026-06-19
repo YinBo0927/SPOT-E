@@ -50,3 +50,14 @@ Bo Yin, Xiaobin Hu, Chengming Xu, Ruolin Shen, Mo Yang, Jiangning Zhang, Peng-Ta
 <p align="center">
   <img src="assets/main-results-table-2.png" alt="Comparison with visual prompting baselines" width="760">
 </p>
+
+## Citation
+
+```bibtex
+@article{yin2026spote,
+  title={SPOT-E: Test-Time Entropy Shaping with Visual Spotlights for Frozen VLMs},
+  author={Yin, Bo and Hu, Xiaobin and Xu, Chengming and Shen, Ruolin and Yang, Mo and Zhang, Jiangning and Jiang, Peng-Tao and Tan, Cheng and Yan, Shuicheng},
+  journal={arXiv preprint arXiv:2606.20244},
+  year={2026}
+}
+```
