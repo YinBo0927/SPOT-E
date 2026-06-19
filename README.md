@@ -16,7 +16,8 @@ pip install -e .
 
 ## Quick Example
 
-Implement a frozen VLM probe that returns token-level entropies and the final-answer token span.
+Implement your VLM adapter in `examples/minimal_probe.py`.
+The only method you need to replace is `YourVLMProbe.trace(...)`: it should return token-level entropies and the final-answer token span.
 
 ```python
 from PIL import Image
@@ -24,11 +25,11 @@ from PIL import Image
 from spot_e import SPOTEPlugin, TokenTrace
 
 
-class MyFrozenProbe:
+class YourVLMProbe:
     def trace(self, image: Image.Image, question: str, *, baseline_trace=None) -> TokenTrace:
-        # Replace this with your VLM scoring code.
-        # If baseline_trace is provided, score the baseline token prefix
-        # under the spotlight image so anchor positions stay aligned.
+        # Baseline call: generate "Final answer: ..." and collect token entropies.
+        # Spotlight call: if baseline_trace is provided, score the same baseline
+        # token prefix under the spotlight image to keep anchors aligned.
         return TokenTrace(
             tokens=["Final", "answer", ":", "red"],
             entropies=[0.05, 0.07, 0.02, 0.42],
@@ -38,11 +39,17 @@ class MyFrozenProbe:
 
 
 image = Image.open("example.png").convert("RGB")
-plugin = SPOTEPlugin(MyFrozenProbe(), seed=7)
+plugin = SPOTEPlugin(YourVLMProbe(), seed=7)
 result = plugin.run(image, "What color is the upper garment?")
 
 result.image.save("spotlight.png")
 print(result.selected_evaluation)
+```
+
+Run the template:
+
+```bash
+python examples/minimal_probe.py
 ```
 
 ## Use A CLIP Relevance Map
