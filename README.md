@@ -1,10 +1,6 @@
 <div align="center">
 
-# SPOT-E
-
-### Test-Time Entropy Shaping with Visual Spotlights for Frozen VLMs
-
-Bo Yin, Xiaobin Hu, Chengming Xu, Ruolin Shen, Mo Yang, Jiangning Zhang, Peng-Tao Jiang, Cheng Tan, Shuicheng Yan
+# SPOT-E: Test-Time Entropy Shaping with Visual Spotlights for Frozen VLMs
 
 <p>
   <a href="https://arxiv.org/abs/2606.20244">
