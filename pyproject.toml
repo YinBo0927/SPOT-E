@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "spot-e"
+version = "0.1.0"
+description = "Test-time entropy shaping with visual spotlights for frozen VLMs"
+requires-python = ">=3.10"
+dependencies = [
+    "torch==2.8.0",
+    "torchvision==0.23.0",
+    "transformers==4.57.6",
+    "huggingface_hub==0.36.0",
+    "numpy==2.0.2",
+    "Pillow==11.3.0",
+    "safetensors==0.6.2",
+    "sentencepiece==0.2.1",
+    "datasets==4.3.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["spote*"]

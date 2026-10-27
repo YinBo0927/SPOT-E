@@ -1,17 +1,22 @@
 <div align="center">
 
-# SPOT-E: Test-Time Entropy Shaping with Visual Spotlights for Frozen VLMs
+# SPOT-E
+
+**Test-Time Entropy Shaping with Visual Spotlights for Frozen VLMs**
 
 <p>
   <a href="https://arxiv.org/abs/2606.20244">
     <img src="https://img.shields.io/badge/arXiv-2606.20244-b31b1b.svg" alt="arXiv">
   </a>
-  <img src="https://img.shields.io/badge/code-coming%20soon-lightgrey.svg" alt="Code coming soon">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT License"></a>
 </p>
 
 <p>
-  Official repository for <strong>SPOT-E</strong>. Code will be released soon.
+  Bo Yin<sup>1</sup>, Xiaobin Hu<sup>1</sup>, Chengming Xu<sup>2</sup>, Ruolin Shen<sup>3</sup>, Mo Yang<sup>4</sup>, Jiangning Zhang<sup>5</sup>, Peng-Tao Jiang<sup>6</sup>, Cheng Tan<sup>7</sup>, Shuicheng Yan<sup>1</sup>
 </p>
+
+<p><sup>1</sup> National University of Singapore · <sup>2</sup> Fudan University · <sup>3</sup> Technical University of Munich<br>
+<sup>4</sup> Sagenic Tech · <sup>5</sup> Zhejiang University · <sup>6</sup> vivo · <sup>7</sup> Shanghai Artificial Intelligence Laboratory</p>
 
 </div>
 
@@ -27,7 +32,75 @@
   <em>SPOT-E freezes the VLM and optimizes a lightweight visual spotlight at test time.</em>
 </p>
 
-## Main Results
+## Setup
+
+Linux, Python 3.12 and CUDA 12.8.
+
+```bash
+git clone https://github.com/YinBo0927/SPOT-E.git
+cd SPOT-E
+conda create -n spote python=3.12 -y
+conda activate spote
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install -r requirements.txt
+python -m pip install -e . --no-deps
+```
+
+If Hugging Face is unreachable, set `export HF_ENDPOINT=https://hf-mirror.com` before downloading.
+
+## Usage
+
+**1. Run an example**
+
+```bash
+python run.py --image assets/example.png --question "What are the long white hairs on the cat's face called?"
+```
+
+Models download automatically. The default uses Qwen2.5-VL-7B and CLIP ViT-B/16. Results are saved to `outputs/example/` as `spotlight.png`, `mask.png`, and `result.json`.
+
+SPOT-E adapts only visual LoRA at test time and resets it for every image. No offline training or task labels are required. Use `--phrase` to supply a compact visual phrase instead of extracting it with the frozen VLM.
+
+**2. Optional: download evaluation data**
+
+```bash
+python download_data.py data/chartqa --count 20
+```
+
+This exports 20 [ChartQA](https://huggingface.co/datasets/lmms-lab/ChartQA) test samples. Omit `--count` for the full test split. The dataset revision and image hashes are recorded.
+
+**3. Evaluate**
+
+```bash
+python evaluate.py data/chartqa/samples.jsonl --output outputs/chartqa
+```
+
+Reports matched baseline and SPOT-E relaxed accuracy in `summary.json`. Add `--resume` to continue the same run. Custom JSONL rows contain `id`, `image`, `question`, and `answers`, with image paths relative to the manifest. Labels are used only for evaluation.
+
+### Configuration
+
+Edit [`configs/default.json`](configs/default.json). Use `--config FILE` to select another configuration. CLI flags override JSON settings.
+
+| Setting | Default |
+| --- | --- |
+| `vlm_model` / `clip_model` | Qwen2.5-VL-7B / CLIP ViT-B/16 |
+| `steps` / `group_size` | 8 / 4 |
+| `lora_rank` / `learning_rate` | 16 / 5e-4 |
+| `anchors` / `preservation_weight` | 60 / 0.5 |
+
+For example, add `--steps 2 --group-size 2` to `run.py` or `evaluate.py` for a smaller budget. Unspecified paper details and backend requirements are documented in [`docs/implementation.md`](docs/implementation.md).
+
+### Python API
+
+```python
+from PIL import Image
+from spote import SPOTE
+
+model = SPOTE.from_pretrained()
+result = model(Image.open("assets/example.png"), "What are the long white hairs on the cat's face called?")
+print(result["result"]["answer"])
+```
+
+## Paper Results
 
 <p align="center">
   <strong>Applying SPOT-E to closed-source and open-source backbones.</strong>
