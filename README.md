@@ -58,15 +58,11 @@ python run.py --image assets/example.png --question "What color is the rocket?"
 
 Models download automatically. The default uses Qwen2.5-VL-7B and CLIP ViT-B/16. Results are saved to `outputs/example/` as `spotlight.png`, `mask.png`, and `result.json`.
 
-| Original | SPOT-E |
-| :---: | :---: |
-| ![Original rocket image](assets/example.png) | ![Rocket spotlight](assets/example-spotlight.png) |
-
 SPOT-E adapts only visual LoRA at test time and resets it for every image. No offline training or task labels are required. Use `--phrase` to supply a compact visual phrase instead of copying it from the question with the frozen VLM.
 
 ### Configuration
 
-Edit [`configs/default.json`](configs/default.json). Use `--config FILE` to select another configuration. CLI flags override JSON settings.
+Edit [`configs/default.json`](configs/default.json). Use `--config FILE` to select another configuration. Available CLI flags override JSON settings.
 
 | Setting | Default |
 | --- | --- |
@@ -74,6 +70,9 @@ Edit [`configs/default.json`](configs/default.json). Use `--config FILE` to sele
 | `steps` / `group_size` | 8 / 4 |
 | `lora_rank` / `learning_rate` | 16 / 5e-4 |
 | `anchors` / `preservation_weight` | 60 / 0.5 |
+| `patch_features` / `mask_calibration` | `value_residual` / `reference` |
+| `mask_temperature` / `background_brightness` | 0.7 / 0.2 |
+| `noise_std` / `crop_fraction` | 0.01 / 0.6 |
 
 For example, add `--steps 2 --group-size 2` to `run.py` for a smaller budget. Unspecified paper details and backend requirements are documented in [`docs/implementation.md`](docs/implementation.md).
 

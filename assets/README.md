@@ -1,1 +1,1 @@
-`example.png` is a SpaceX Falcon 9 launch photo released in the public domain. Source: [scikit-image sample data](https://scikit-image.org/docs/stable/api/skimage.data.html#skimage.data.rocket). `example-spotlight.png` is the SPOT-E output for this image.
+`example.png` is a SpaceX Falcon 9 launch photo released in the public domain. Source: [scikit-image sample data](https://scikit-image.org/docs/stable/api/skimage.data.html#skimage.data.rocket).
