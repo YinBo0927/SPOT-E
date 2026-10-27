@@ -74,7 +74,7 @@ Edit [`configs/default.json`](configs/default.json). Use `--config FILE` to sele
 | `mask_temperature` / `background_brightness` | 0.7 / 0.2 |
 | `noise_std` / `crop_fraction` | 0.01 / 0.6 |
 
-For example, add `--steps 2 --group-size 2` to `run.py` for a smaller budget. Unspecified paper details and backend requirements are documented in [`docs/implementation.md`](docs/implementation.md).
+For example, add `--steps 2 --group-size 2` to `run.py` for a smaller budget.
 
 ### Python API
 

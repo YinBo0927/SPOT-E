@@ -1,4 +1,4 @@
-"""Paper settings and explicit choices for unspecified implementation details."""
+"""SPOT-E configuration."""
 from dataclasses import asdict, dataclass, field
 import json
 import math
