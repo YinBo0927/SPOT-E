@@ -52,6 +52,8 @@ class SPOTE:
         rng = torch.Generator(device=c.device).manual_seed(c.seed)
         with torch.no_grad():
             reference = self.spotlight(pixels, text).detach().clone()
+            calibration = self.spotlight.calibrate(image, reference, boxes)
+        report["mask_calibration"] = calibration
 
         def sample(mean):
             return mean[None] + torch.randn((c.group_size, *mean.shape), device=mean.device, generator=rng) * c.noise_std
@@ -59,7 +61,7 @@ class SPOTE:
         def score(actions):
             images, masks, metrics = [], [], []
             for action in actions:
-                modified, mask = self.spotlight.render(image, action, boxes)
+                modified, mask = self.spotlight.render(image, action, boxes, calibration)
                 entropies = self.vlm.entropies(modified, question, trace.token_ids)
                 metrics.append(entropy_reward(trace.entropies, entropies, trace.answer_indices, anchors,
                                               c.clarity_constant, c.preservation_weight))

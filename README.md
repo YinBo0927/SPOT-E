@@ -53,12 +53,16 @@ If Hugging Face is unreachable, set `export HF_ENDPOINT=https://hf-mirror.com` b
 **Run an example**
 
 ```bash
-python run.py --image assets/example.png --question "What are the long white hairs on the cat's face called?"
+python run.py --image assets/example.png --question "What color is the rocket?"
 ```
 
 Models download automatically. The default uses Qwen2.5-VL-7B and CLIP ViT-B/16. Results are saved to `outputs/example/` as `spotlight.png`, `mask.png`, and `result.json`.
 
-SPOT-E adapts only visual LoRA at test time and resets it for every image. No offline training or task labels are required. Use `--phrase` to supply a compact visual phrase instead of extracting it with the frozen VLM.
+| Original | SPOT-E |
+| :---: | :---: |
+| ![Original rocket image](assets/example.png) | ![Rocket spotlight](assets/example-spotlight.png) |
+
+SPOT-E adapts only visual LoRA at test time and resets it for every image. No offline training or task labels are required. Use `--phrase` to supply a compact visual phrase instead of copying it from the question with the frozen VLM.
 
 ### Configuration
 
@@ -80,7 +84,7 @@ from PIL import Image
 from spote import SPOTE
 
 model = SPOTE.from_pretrained()
-result = model(Image.open("assets/example.png"), "What are the long white hairs on the cat's face called?")
+result = model(Image.open("assets/example.png"), "What color is the rocket?")
 print(result["result"]["answer"])
 ```
 

@@ -1,1 +1,1 @@
-`example.png` is Chelsea the cat, photographed by Stefan van der Walt and released under CC0. Source: [scikit-image sample data](https://scikit-image.org/docs/stable/api/skimage.data.html#skimage.data.chelsea).
+`example.png` is a SpaceX Falcon 9 launch photo released in the public domain. Source: [scikit-image sample data](https://scikit-image.org/docs/stable/api/skimage.data.html#skimage.data.rocket). `example-spotlight.png` is the SPOT-E output for this image.

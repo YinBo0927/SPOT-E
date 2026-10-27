@@ -9,7 +9,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--image", required=True)
     parser.add_argument("--question", required=True)
-    parser.add_argument("--phrase", help="optional compact visual phrase, otherwise extracted by the frozen VLM")
+    parser.add_argument("--phrase", help="optional compact visual phrase, otherwise copied from the question by the frozen VLM")
     parser.add_argument("--config", default=str(Path(__file__).resolve().parent / "configs/default.json"))
     parser.add_argument("--output", default="outputs/example")
     for name in ("vlm-model", "clip-model", "device", "precision"):

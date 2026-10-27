@@ -20,9 +20,11 @@ class SPOTEConfig:
     anchors: int = 60
     preservation_weight: float = .5
     clarity_constant: float = 1.
-    mask_temperature: float = .1
-    noise_std: float = .05
-    background_brightness: float = .3
+    patch_features: str = "value_residual"
+    mask_temperature: float = .7
+    mask_calibration: str = "reference"
+    noise_std: float = .01
+    background_brightness: float = .2
     crop_fraction: float = .6
     clip_range: float = .2
     kl_weight: float = .01
@@ -48,6 +50,10 @@ class SPOTEConfig:
             raise ValueError("invalid dimming, crop fraction or clipping range")
         if self.precision not in ("bf16", "fp32") or (self.device == "cpu" and self.precision != "fp32"):
             raise ValueError("use bf16/fp32, and fp32 on CPU")
+        if self.mask_calibration not in ("reference", "none"):
+            raise ValueError("mask_calibration must be reference or none")
+        if self.patch_features not in ("value_residual", "last_hidden"):
+            raise ValueError("patch_features must be value_residual or last_hidden")
         if (not self.lora_targets or len(set(self.lora_targets)) != len(self.lora_targets)
                 or set(self.lora_targets) - {"q_proj", "k_proj", "v_proj", "out_proj"}):
             raise ValueError("LoRA targets must be unique CLIP attention projections")

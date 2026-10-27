@@ -79,7 +79,15 @@ class SpotlightPolicy(nn.Module):
         return pixels, embedding, boxes
 
     def forward(self, pixels, embedding):
-        tokens = self.clip.vision_model(pixel_values=pixels).last_hidden_state[:, 1:]
+        vision = self.clip.vision_model(pixel_values=pixels, output_hidden_states=self.config.patch_features == "value_residual")
+        if self.config.patch_features == "value_residual":
+            previous = vision.hidden_states[-2]
+            layer = self.clip.vision_model.encoder.layers[-1]
+            # Preserve local values before the last attention pooling and MLP.
+            tokens = previous + layer.self_attn.out_proj(layer.self_attn.v_proj(layer.layer_norm1(previous)))
+        else:
+            tokens = vision.last_hidden_state
+        tokens = tokens[:, 1:]
         tokens = self.clip.vision_model.post_layernorm(tokens)
         tokens = F.normalize(self.clip.visual_projection(tokens).float(), dim=-1)
         side = math.isqrt(tokens.shape[1])
@@ -87,22 +95,44 @@ class SpotlightPolicy(nn.Module):
             raise ValueError("CLIP patch grid is not square")
         return (tokens @ embedding.T).squeeze(-1).reshape(len(pixels), side, side)
 
-    @torch.no_grad()
-    def render(self, image, action, boxes):
-        """Gaussian noise is applied to view-level relevance grids before max fusion."""
+    @staticmethod
+    def fuse(image, action, boxes):
+        """Warp each view directly to image coordinates, preserving crop patch detail."""
         width, height = image.size
-        if action.ndim != 3 or len(action) != len(boxes) or not torch.isfinite(action).all():
+        if (action.ndim != 3 or len(action) != len(boxes) or not len(action)
+                or not torch.isfinite(action).all() or boxes[0] != (0, 0, width, height)):
             raise ValueError("invalid spotlight action")
-        side = action.shape[-1]
-        fused = action[0].clone()
+        fused = F.interpolate(action[:1, None], size=(height, width),
+                              mode="bilinear", align_corners=False)[0, 0]
         for grid, (left, top, right, bottom) in zip(action[1:], boxes[1:]):
-            left, top = round(left * side / width), round(top * side / height)
-            right, bottom = max(left + 1, round(right * side / width)), max(top + 1, round(bottom * side / height))
+            if not (0 <= left < right <= width and 0 <= top < bottom <= height):
+                raise ValueError("crop box lies outside the image")
             local = F.interpolate(grid[None, None], size=(bottom - top, right - left),
                                   mode="bilinear", align_corners=False)[0, 0]
             fused[top:bottom, left:right] = torch.maximum(fused[top:bottom, left:right], local)
-        fused = F.interpolate(fused[None, None], size=(height, width), mode="bilinear", align_corners=False)[0, 0]
-        mask = torch.sigmoid(fused / self.config.mask_temperature).cpu()
+        return fused
+
+    @torch.no_grad()
+    def calibrate(self, image, reference, boxes):
+        if self.config.mask_calibration == "none":
+            return {"center": 0., "scale": 1.}
+        fused = self.fuse(image, reference, boxes).float()
+        # Fixed for the whole episode: candidates cannot shift their own normalization.
+        return {"center": float(fused.mean()),
+                "scale": max(float(fused.std(unbiased=False)), self.config.noise_std)}
+
+    @torch.no_grad()
+    def render(self, image, action, boxes, calibration=None):
+        """Noise precedes fusion; reference statistics precede all candidate scoring."""
+        if calibration is None:
+            if self.config.mask_calibration != "none":
+                raise ValueError("reference mask calibration is required")
+            calibration = {"center": 0., "scale": 1.}
+        center, scale = calibration["center"], calibration["scale"]
+        if not math.isfinite(center) or not math.isfinite(scale) or scale <= 0:
+            raise ValueError("invalid mask calibration")
+        fused = self.fuse(image, action, boxes)
+        mask = torch.sigmoid((fused - center) / (scale * self.config.mask_temperature)).cpu()
         original = torch.from_numpy(np.array(image.convert("RGB"), copy=True)).float() / 255
         modified = original * (self.config.background_brightness + (1 - self.config.background_brightness) * mask[..., None])
         pixels = (modified.clamp(0, 1).numpy() * 255).round().astype(np.uint8)

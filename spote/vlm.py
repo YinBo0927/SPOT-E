@@ -116,10 +116,17 @@ class FrozenVLM:
         return BaselineTrace(text, tokens, self.entropies(image, question, tokens), indices, method)
 
     def visual_phrase(self, question):
-        prompt = ("Rewrite the following question as one short visual phrase containing its key entities "
-                  "and attributes. Do not answer it. Return only the phrase.\nQuestion: " + question)
+        if not isinstance(question, str) or not question.strip():
+            raise ValueError("question must be nonempty")
+        prompt = ("Copy one contiguous phrase VERBATIM from the question naming the visual entity "
+                  "and any attributes already stated. Do not answer the question or add any words. "
+                  "Do not guess the requested color, material, count or other unknown attribute. "
+                  "Return only the copied phrase.\nQuestion: " + question)
         tokens = self.generate(None, prompt, structured=False, max_new_tokens=32)
-        return self.processor.tokenizer.decode(tokens, skip_special_tokens=True).strip()
+        phrase = self.processor.tokenizer.decode(tokens, skip_special_tokens=True).strip().strip("\"'`")
+        # Unsupported rewrites fall back to the unchanged question, never guessed attributes.
+        match = re.search(r"(?<!\w)" + re.escape(phrase) + r"(?!\w)", question, re.IGNORECASE) if phrase else None
+        return match.group() if match else question.strip()
 
     def predict(self, image, question):
         tokens = self.generate(image, question)
