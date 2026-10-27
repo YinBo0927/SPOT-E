@@ -50,7 +50,7 @@ If Hugging Face is unreachable, set `export HF_ENDPOINT=https://hf-mirror.com` b
 
 ## Usage
 
-**1. Run an example**
+**Run an example**
 
 ```bash
 python run.py --image assets/example.png --question "What are the long white hairs on the cat's face called?"
@@ -59,22 +59,6 @@ python run.py --image assets/example.png --question "What are the long white hai
 Models download automatically. The default uses Qwen2.5-VL-7B and CLIP ViT-B/16. Results are saved to `outputs/example/` as `spotlight.png`, `mask.png`, and `result.json`.
 
 SPOT-E adapts only visual LoRA at test time and resets it for every image. No offline training or task labels are required. Use `--phrase` to supply a compact visual phrase instead of extracting it with the frozen VLM.
-
-**2. Optional: download evaluation data**
-
-```bash
-python download_data.py data/chartqa --count 20
-```
-
-This exports 20 [ChartQA](https://huggingface.co/datasets/lmms-lab/ChartQA) test samples. Omit `--count` for the full test split. The dataset revision and image hashes are recorded.
-
-**3. Evaluate**
-
-```bash
-python evaluate.py data/chartqa/samples.jsonl --output outputs/chartqa
-```
-
-Reports matched baseline and SPOT-E relaxed accuracy in `summary.json`. Add `--resume` to continue the same run. Custom JSONL rows contain `id`, `image`, `question`, and `answers`, with image paths relative to the manifest. Labels are used only for evaluation.
 
 ### Configuration
 
@@ -87,7 +71,7 @@ Edit [`configs/default.json`](configs/default.json). Use `--config FILE` to sele
 | `lora_rank` / `learning_rate` | 16 / 5e-4 |
 | `anchors` / `preservation_weight` | 60 / 0.5 |
 
-For example, add `--steps 2 --group-size 2` to `run.py` or `evaluate.py` for a smaller budget. Unspecified paper details and backend requirements are documented in [`docs/implementation.md`](docs/implementation.md).
+For example, add `--steps 2 --group-size 2` to `run.py` for a smaller budget. Unspecified paper details and backend requirements are documented in [`docs/implementation.md`](docs/implementation.md).
 
 ### Python API
 
